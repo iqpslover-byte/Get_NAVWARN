@@ -6,16 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  fetch:を開いて全部置き換えてください：
-
-name: Fetch NAVWARN Data
-
-on:
-  schedule:
-    - cron: '0 0,6,12,18 * * *'
-  workflow_dispatch:
-
-jobs:
   fetch:
     runs-on: ubuntu-latest
     permissions:
@@ -28,22 +18,20 @@ jobs:
           mkdir -p data
           BASE="https://msi.nga.mil/api/publications/download?type=view&key=16694640/SFH00000"
           for F in DailyMemPAC.txt DailyMemXII.txt DailyMemLAN.txt DailyMemIV.txt DailyMemARC.txt; do
-            curl -fsSL "$BASE/$F" -o "data
+            curl -fsSL "$BASE/$F" -o "data/$F" || true
           done
 
       - name: Fetch HTML sites
         run: |
           mkdir -p data
-          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0
-Safari/537.36"
-          curl -sSL -A "$UA" "https://www.maritimenz.govt.nz/navigational-warnings/" -o "data/maritimenz.html" -w
-"MaritimeNZ HTTP status: %{http_code}\n"
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          curl -sSL -A "$UA" "https://www.maritimenz.govt.nz/navigational-warnings/" -o "data/maritimenz.html" -w "MaritimeNZ HTTP status: %{http_code}\n"
           curl -sSL -A "$UA" "https://rocketlabcorp.com/launch/launch-safety/" -o "data/rocketlab.html" -w "RocketLab HTTP status: %{http_code}\n"
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-acub.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
-          git diff --staged --quiet || gitta $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git diff --staged --quiet || git commit -m "Update NAVWARN data $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
