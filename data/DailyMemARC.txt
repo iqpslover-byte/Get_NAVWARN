@@ -1,5 +1,5 @@
 
-HYDROARC IN FORCE AS OF 061500Z JUL 26.
+HYDROARC IN FORCE AS OF 071600Z JUL 26.
 
 To receive Broadcast Warning messages via email, go to
 msi.nga.mil and click on the 'NAVIGATION WARNINGS' button
@@ -13,6 +13,18 @@ services in accordance with the provisions of the
 International Convention for the Safety of Life at
 Sea (SOLAS). This information is provided as a
 supplement to those approved services.
+
+061827Z JUL 26
+HYDROARC 122/26.
+BARENTS SEA.
+RUSSIA.
+1. MISSILE OPERATIONS 0500Z TO 1700Z DAILY
+   11 THRU 13 JUL IN AREA BOUND BY
+   70-07.00N 035-56.00E, 69-27.50N 036-07.00E,
+   69-29.00N 035-11.00E, 69-32.00N 033-41.50E,
+   69-41.00N 033-04.00E, 69-44.00N 033-04.00E,
+   70-03.00N 035-02.00E.
+2. CANCEL THIS MSG 131800Z JUL 26.
 
 021813Z JUL 26
 HYDROARC 121/26.
