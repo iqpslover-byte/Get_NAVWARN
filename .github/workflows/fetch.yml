@@ -26,10 +26,11 @@ jobs:
         run: |
           mkdir -p data
           UA="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-          # 公式の Maritime NZ (www.maritimenz.govt.nz/navigational-warnings/) は
-          # Actionsのランナー(データセンターIP)から 403 を返すため直接は取れない。
-          # 家庭回線からは User-Agent さえ付ければ 200 で取れるので、遮断はIP側。
-          # 同じ電文を載せている SeaLagom から2本取る。
+          # 公式の Maritime NZ は Actionsのランナー(データセンターIP)から 403 を返す。
+          # 家庭回線なら User-Agent だけで 200 なので遮断はIP側＝UAでは回避できない。
+          # r.jina.ai の読み取りプロキシを通すと取れる（本文がテキスト化されるぶん軽い）。
+          curl -fsSL -A "$UA" "https://r.jina.ai/https://www.maritimenz.govt.nz/navigational-warnings/" -o data/MaritimeNZ.txt || true
+          # SeaLagom（第三者の集約サイト）。公式に無い NZ Coastal はこちらから取る。
           curl -fsSL -A "$UA" "https://www.sealagom.com/navarea/14/" -o data/NavareaXIV.html || true
           curl -fsSL -A "$UA" "https://www.sealagom.com/coastal/New%20Zealand%20Coastal/Coastal/" -o data/NZCoastal.html || true
 
