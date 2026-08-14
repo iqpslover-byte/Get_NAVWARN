@@ -26,10 +26,31 @@ jobs:
         run: |
           mkdir -p data
           UA="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-          # 公式の Maritime NZ は Actionsのランナー(データセンターIP)から 403 を返す。
+          # 公式の Maritime NZ は Actionsのランナー(データセンターIP)から直接だと 403。
           # 家庭回線なら User-Agent だけで 200 なので遮断はIP側＝UAでは回避できない。
-          # r.jina.ai の読み取りプロキシを通すと取れる（本文がテキスト化されるぶん軽い）。
-          curl -fsSL -A "$UA" "https://r.jina.ai/https://www.maritimenz.govt.nz/navigational-warnings/" -o data/MaritimeNZ.txt || true
+          # プロキシ経由なら取れるが、どれが生きているかは日替わりなので順に試す。
+          # ★200が返っても中身が別サイト(広告ページ等)のことがあるので、
+          #   度-分形式の座標が含まれるかを確かめてから採用する。
+          T="https://www.maritimenz.govt.nz/navigational-warnings/"
+          E="https%3A%2F%2Fwww.maritimenz.govt.nz%2Fnavigational-warnings%2F"
+          for U in \
+            "https://proxy.cors.sh/$T" \
+            "https://cors.eu.org/$T" \
+            "https://r.jina.ai/$T" \
+            "https://api.allorigins.win/raw?url=$E" \
+            "https://api.codetabs.com/v1/proxy?quest=$E" ; do
+            if curl -fsSL --max-time 30 -A "$UA" -H "X-Requested-With: XMLHttpRequest" "$U" -o /tmp/nz.out; then
+              if grep -qiE "[0-9]{2}-[0-9]{2}\.?[0-9]*[NS]" /tmp/nz.out; then
+                mv /tmp/nz.out data/MaritimeNZ.html
+                echo "MaritimeNZ: 取得成功 <- $U"
+                break
+              else
+                echo "MaritimeNZ: 200だが座標なし(中身が違う) <- $U"
+              fi
+            else
+              echo "MaritimeNZ: 取得できず <- $U"
+            fi
+          done
           # SeaLagom（第三者の集約サイト）。公式に無い NZ Coastal はこちらから取る。
           curl -fsSL -A "$UA" "https://www.sealagom.com/navarea/14/" -o data/NavareaXIV.html || true
           curl -fsSL -A "$UA" "https://www.sealagom.com/coastal/New%20Zealand%20Coastal/Coastal/" -o data/NZCoastal.html || true
