@@ -21,6 +21,16 @@ jobs:
             curl -fsSL "$BASE/$F" -o "data/$F" || true
           done
 
+      # NAVAREA XIV（調整国＝ニュージーランド）と NZ Coastal は NGA の DailyMem に入らないため個別に取る
+      - name: Fetch NAVAREA XIV / NZ coastal
+        run: |
+          mkdir -p data
+          UA="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
+          # Maritime NZ（公式・現在有効なもののみ）。User-Agent が無いと 403 を返すので必ず付ける
+          curl -fsSL -A "$UA" "https://www.maritimenz.govt.nz/navigational-warnings/" -o data/MaritimeNZ.html || true
+          # SeaLagom（第三者の集約サイト・NAVAREA XIV）
+          curl -fsSL -A "$UA" "https://www.sealagom.com/navarea/14/" -o data/NavareaXIV.html || true
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
