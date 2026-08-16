@@ -16,9 +16,16 @@ jobs:
       - name: Fetch NGA MSI files
         run: |
           mkdir -p data
+          : > /tmp/fetch_status.txt
           BASE="https://msi.nga.mil/api/publications/download?type=view&key=16694640/SFH00000"
           for F in DailyMemPAC.txt DailyMemXII.txt DailyMemLAN.txt DailyMemIV.txt DailyMemARC.txt; do
-            curl -fsSL "$BASE/$F" -o "data/$F" || true
+            if curl -fsSL "$BASE/$F" -o "/tmp/$F"; then
+              mv "/tmp/$F" "data/$F"
+              echo "OK $F direct" >> /tmp/fetch_status.txt
+            else
+              echo "NG $F direct" >> /tmp/fetch_status.txt
+              echo "$F: 取得できず（前回のファイルを残す）"
+            fi
           done
 
       # NAVAREA XIV（調整国＝ニュージーランド）と NZ Coastal は NGA の DailyMem に入らないため個別に取る
@@ -31,8 +38,12 @@ jobs:
           # プロキシ経由なら取れるが、どれが生きているかは日替わりなので順に試す。
           # ★200が返っても中身が別サイト(広告ページ等)のことがあるので、
           #   度-分形式の座標が含まれるかを確かめてから採用する。
+          # ★プロキシ経由だと Cloudflare がメール難読化スクリプト(乱数キー)を含まない版を返すため、
+          #   取得結果はバイト単位で安定する。＝警報が変わった時だけ差分が出るのが正常な姿で、
+          #   「コミットが無い＝取得に失敗した」ではない（2026-08-16に実測して確認）。
           T="https://www.maritimenz.govt.nz/navigational-warnings/"
           E="https%3A%2F%2Fwww.maritimenz.govt.nz%2Fnavigational-warnings%2F"
+          NZ_OK=0
           for U in \
             "https://proxy.cors.sh/$T" \
             "https://cors.eu.org/$T" \
@@ -40,9 +51,11 @@ jobs:
             "https://api.allorigins.win/raw?url=$E" \
             "https://api.codetabs.com/v1/proxy?quest=$E" ; do
             if curl -fsSL --max-time 30 -A "$UA" -H "X-Requested-With: XMLHttpRequest" "$U" -o /tmp/nz.out; then
-              if grep -qiE "[0-9]{2}-[0-9]{2}\.?[0-9]*[NS]" /tmp/nz.out; then
+              if grep -qiE "[0-9]{2}-[0-9]{2}\.?[0-9]*[[:space:]]?[NS]" /tmp/nz.out; then
                 mv /tmp/nz.out data/MaritimeNZ.html
                 echo "MaritimeNZ: 取得成功 <- $U"
+                echo "OK MaritimeNZ.html $U" >> /tmp/fetch_status.txt
+                NZ_OK=1
                 break
               else
                 echo "MaritimeNZ: 200だが座標なし(中身が違う) <- $U"
@@ -51,9 +64,64 @@ jobs:
               echo "MaritimeNZ: 取得できず <- $U"
             fi
           done
+          if [ "$NZ_OK" = "0" ]; then
+            echo "MaritimeNZ: 全経路で失敗（前回のファイルを残す）"
+            echo "NG MaritimeNZ.html all-proxies-failed" >> /tmp/fetch_status.txt
+          fi
           # SeaLagom（第三者の集約サイト）。公式に無い NZ Coastal はこちらから取る。
-          curl -fsSL -A "$UA" "https://www.sealagom.com/navarea/14/" -o data/NavareaXIV.html || true
-          curl -fsSL -A "$UA" "https://www.sealagom.com/coastal/New%20Zealand%20Coastal/Coastal/" -o data/NZCoastal.html || true
+          for P in "navarea/14/:NavareaXIV.html" "coastal/New%20Zealand%20Coastal/Coastal/:NZCoastal.html"; do
+            SRC="${P%%:*}"; DST="${P##*:}"
+            if curl -fsSL -A "$UA" "https://www.sealagom.com/$SRC" -o "/tmp/$DST"; then
+              mv "/tmp/$DST" "data/$DST"
+              echo "OK $DST direct" >> /tmp/fetch_status.txt
+            else
+              echo "NG $DST direct" >> /tmp/fetch_status.txt
+              echo "$DST: 取得できず（前回のファイルを残す）"
+            fi
+          done
+
+      # 取得の成否を記録する。これが無いと「コミットが無い」が
+      # 「警報が変わらなかった」なのか「取得に失敗して前回のファイルが残った」なのか
+      # 履歴から区別できない（2026-08-16にその判別で丸一日かかった）。
+      - name: Record fetch status
+        run: |
+          python3 - <<'PY'
+          import json, os, datetime
+          now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+          path = 'data/_status.json'
+          try:
+              with open(path, encoding='utf-8') as f:
+                  prev = json.load(f)
+          except (OSError, ValueError):
+              prev = {}
+          src = prev.get('sources', {})
+          seen = set()
+          for line in open('/tmp/fetch_status.txt', encoding='utf-8'):
+              parts = line.split(None, 2)
+              if len(parts) < 2:
+                  continue
+              ok, name = parts[0] == 'OK', parts[1]
+              via = parts[2].strip() if len(parts) > 2 else ''
+              e = src.setdefault(name, {})
+              seen.add(name)
+              e['ok'] = ok
+              if ok:
+                  e['last_ok'] = now
+                  e['via'] = via
+                  e['bytes'] = os.path.getsize('data/' + name) if os.path.exists('data/' + name) else 0
+                  e.pop('fail_streak', None)
+              else:
+                  e['last_fail'] = now
+                  e['fail_streak'] = e.get('fail_streak', 0) + 1
+          out = {'checked_at': now,
+                 'note': 'last_ok=最後に取得できた時刻。ファイルのコミットが無くても取得は成功している場合がある（内容が変わらなければ差分が出ないため）。',
+                 'sources': {k: src[k] for k in sorted(src)}}
+          with open(path, 'w', encoding='utf-8') as f:
+              json.dump(out, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          bad = [k for k in seen if not src[k].get('ok')]
+          print('取得状況: 成功 %d / 失敗 %d %s' % (len(seen) - len(bad), len(bad), bad or ''))
+          PY
 
       - name: Commit and push
         run: |
