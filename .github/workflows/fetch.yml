@@ -28,8 +28,12 @@ jobs:
             fi
           done
 
-      # NAVAREA XIV（調整国＝ニュージーランド）と NZ Coastal は NGA の DailyMem に入らないため個別に取る
-      - name: Fetch NAVAREA XIV / NZ coastal
+      # NAVAREA XIV（調整国＝ニュージーランド）は NGA の DailyMem に入らないため個別に取る。
+      # 公式ページ1枚に NAVAREA XIV と NZ Coastal の両方が載るので、取得先はここだけでよい
+      # （SeaLagom の2本は2026-08-16に撤去。実測で MaritimeNZ が両方を完全に含み、
+      #  SeaLagom 側にしか無い警報は0件だった。第三者サイトの複製を公開リポジトリで
+      #  再配信する形も避けたい）。
+      - name: Fetch Maritime NZ
         run: |
           mkdir -p data
           UA="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
@@ -68,17 +72,6 @@ jobs:
             echo "MaritimeNZ: 全経路で失敗（前回のファイルを残す）"
             echo "NG MaritimeNZ.html all-proxies-failed" >> /tmp/fetch_status.txt
           fi
-          # SeaLagom（第三者の集約サイト）。公式に無い NZ Coastal はこちらから取る。
-          for P in "navarea/14/:NavareaXIV.html" "coastal/New%20Zealand%20Coastal/Coastal/:NZCoastal.html"; do
-            SRC="${P%%:*}"; DST="${P##*:}"
-            if curl -fsSL -A "$UA" "https://www.sealagom.com/$SRC" -o "/tmp/$DST"; then
-              mv "/tmp/$DST" "data/$DST"
-              echo "OK $DST direct" >> /tmp/fetch_status.txt
-            else
-              echo "NG $DST direct" >> /tmp/fetch_status.txt
-              echo "$DST: 取得できず（前回のファイルを残す）"
-            fi
-          done
 
       # 取得の成否を記録する。これが無いと「コミットが無い」が
       # 「警報が変わらなかった」なのか「取得に失敗して前回のファイルが残った」なのか
