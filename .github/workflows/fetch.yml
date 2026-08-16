@@ -108,7 +108,8 @@ jobs:
                   e['fail_streak'] = e.get('fail_streak', 0) + 1
           out = {'checked_at': now,
                  'note': 'last_ok=最後に取得できた時刻。ファイルのコミットが無くても取得は成功している場合がある（内容が変わらなければ差分が出ないため）。',
-                 'sources': {k: src[k] for k in sorted(src)}}
+                 # 今回取りに行ったものだけを残す＝取得をやめたファイルの記録が居座らない
+                 'sources': {k: src[k] for k in sorted(seen)}}
           with open(path, 'w', encoding='utf-8') as f:
               json.dump(out, f, ensure_ascii=False, indent=2)
               f.write('\n')
