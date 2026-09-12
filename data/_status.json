@@ -1,34 +1,34 @@
 {
-  "checked_at": "2026-09-12T15:13:39Z",
+  "checked_at": "2026-09-12T20:19:43Z",
   "note": "last_ok=最後に取得できた時刻。ファイルのコミットが無くても取得は成功している場合がある（内容が変わらなければ差分が出ないため）。",
   "sources": {
     "DailyMemARC.txt": {
       "ok": true,
-      "last_ok": "2026-09-12T15:13:39Z",
+      "last_ok": "2026-09-12T20:19:43Z",
       "via": "direct",
       "bytes": 8369
     },
     "DailyMemIV.txt": {
       "ok": true,
-      "last_ok": "2026-09-12T15:13:39Z",
+      "last_ok": "2026-09-12T20:19:43Z",
       "via": "direct",
       "bytes": 35151
     },
     "DailyMemLAN.txt": {
       "ok": true,
-      "last_ok": "2026-09-12T15:13:39Z",
+      "last_ok": "2026-09-12T20:19:43Z",
       "via": "direct",
       "bytes": 29881
     },
     "DailyMemPAC.txt": {
       "ok": true,
-      "last_ok": "2026-09-12T15:13:39Z",
+      "last_ok": "2026-09-12T20:19:43Z",
       "via": "direct",
       "bytes": 40636
     },
     "DailyMemXII.txt": {
       "ok": true,
-      "last_ok": "2026-09-12T15:13:39Z",
+      "last_ok": "2026-09-12T20:19:43Z",
       "via": "direct",
       "bytes": 10129
     },
@@ -37,8 +37,8 @@
       "last_ok": "2026-09-12T03:44:52Z",
       "via": "https://cors.eu.org/https://www.maritimenz.govt.nz/navigational-warnings/",
       "bytes": 44778,
-      "last_fail": "2026-09-12T15:13:39Z",
-      "fail_streak": 2
+      "last_fail": "2026-09-12T20:19:43Z",
+      "fail_streak": 3
     }
   }
 }
