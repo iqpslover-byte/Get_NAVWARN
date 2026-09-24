@@ -1,5 +1,5 @@
 
-HYDROARC IN FORCE AS OF 231445Z SEP 26.
+HYDROARC IN FORCE AS OF 241500Z SEP.
 
 To receive Broadcast Warning messages via email, go to
 msi.nga.mil and click on the 'NAVIGATION WARNINGS' button
@@ -13,6 +13,20 @@ services in accordance with the provisions of the
 International Convention for the Safety of Life at
 Sea (SOLAS). This information is provided as a
 supplement to those approved services.
+
+240936Z SEP 26
+HYDROARC 253/26.
+QUEEN MAUD GULF.
+CANADA.
+SCIENTIFIC MOORING ESTABLISHED IN 
+68-39.93N 103-00.86W, TOP FLOAT 126 METERS.
+
+240929Z SEP 26
+HYDROARC 252/26.
+QUEEN MAUD GULF.
+CANADA.
+SCIENTIFIC MOORING ESTABLISHED IN 
+68-53.41N 101-31.15W, TOP FLOAT 49 METERS.
 
 231419Z SEP 26
 HYDROARC 251/26.
