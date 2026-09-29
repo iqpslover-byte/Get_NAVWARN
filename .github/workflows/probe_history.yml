@@ -12,52 +12,16 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch all (active + cancelled) per area
+      - name: Probe by number (2024-06..2026-05)
         run: |
           UA="Mozilla/5.0 (X11; Linux x86_64) Get_NAVWARN probe"
-          A="https://msi.nga.mil/api/publications/broadcast-warn"
-          mkdir -p /tmp/raw
-          for AR in P 4 12 A C; do
-            code=$(curl -s -A "$UA" --max-time 600 -o /tmp/raw/$AR.json -w "%{http_code}" "$A?navArea=$AR&status=all&output=json")
-            echo "=== $AR HTTP $code $(wc -c < /tmp/raw/$AR.json)B"
-            sleep 2
+          M="https://msi.nga.mil/api/publications"
+          for Q in "4 226 25" "P 496 25" "P 1235 25" "P 2586 25" "4 1210 25" "4 348 26" "4 440 26" "P 1470 26"; do
+            set -- $Q
+            for U in "$M/smaps?navArea=$1&msgSqncNumber=$2&createdOn=$3&category=14&output=json"                      "$M/smaps?navArea=$1&msgSqncNumber=$2&createdOn=$3&output=json"                      "$M/broadcast-warn?navArea=$1&msgNumber=$2&msgYear=20$3&status=all&output=json"; do
+              curl -s -A "$UA" --max-time 60 -o /tmp/r.out "$U"
+              echo "=== $Q $(wc -c < /tmp/r.out)B $(head -c 160 /tmp/r.out | tr '
+' ' ') <= ${U#$M/}"
+              sleep 1
+            done
           done
-      - name: Filter launch-related
-        run: |
-          mkdir -p /tmp/out
-          python3 - <<'EOF'
-          import json, re, collections, glob, os
-          LAUNCH = re.compile(r'ROCKET\s+LAUNCH|SPACE\s+LAUNCH|SPACE\s+VEHICLE|LAUNCH(?:ING)?\s+OPERATION|MISSILE\s+LAUNCH', re.I)
-          DEBRIS = re.compile(r'SPACE\s+DEBRIS|ROCKET\s+DEBRIS|DEBRIS\s+SPLASH|SPLASHDOWN|RE-?ENTRY', re.I)
-          out = []
-          for p in sorted(glob.glob('/tmp/raw/*.json')):
-              ar = os.path.basename(p)[:-5]
-              try:
-                  rows = json.load(open(p)).get('broadcast-warn') or []
-              except Exception as e:
-                  print(ar, 'JSON でない', e); continue
-              seen = set(); kinds = collections.Counter(); yrs = collections.Counter()
-              for r in rows:
-                  k = (r.get('msgYear'), r.get('msgNumber'))
-                  if k in seen: continue
-                  seen.add(k)
-                  t = r.get('text') or ''
-                  kind = 'launch' if LAUNCH.search(t) else ('debris' if DEBRIS.search(t) else None)
-                  if not kind: continue
-                  kinds[kind] += 1; yrs[r.get('msgYear')] += 1
-                  out.append({'navArea': ar, 'msgYear': r.get('msgYear'), 'msgNumber': r.get('msgNumber'),
-                              'authority': r.get('authority'), 'issueDate': r.get('issueDate'),
-                              'cancelDate': r.get('cancelDate'), 'status': r.get('status'),
-                              'kind': kind, 'text': t})
-              print('==', ar, '全件', len(seen), '打上げ関係', dict(kinds))
-              print('   年ごと', sorted((y, n) for y, n in yrs.items() if y))
-          json.dump(out, open('/tmp/out/launch_warnings.json', 'w'), ensure_ascii=False)
-          print('合計', len(out), '件', os.path.getsize('/tmp/out/launch_warnings.json'), 'B')
-          if out:
-              print('項目', sorted(json.load(open(glob.glob('/tmp/raw/P.json')[0]))['broadcast-warn'][0].keys()))
-          EOF
-      - uses: actions/upload-artifact@v4
-        with:
-          name: launch_warnings
-          path: /tmp/out/launch_warnings.json
-          retention-days: 7
