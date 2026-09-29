@@ -1,7 +1,7 @@
 name: Probe NGA history (試験・手動のみ)
 
 # 過去の航行警報を NGA の窓口から引けるかを確かめるだけの試験。
-# リポジトリには何も書き込まない（結果はログと成果物 artifact に出すだけ）。
+# リポジトリには何も書き込まない（結果はログに出すだけ）。
 on:
   workflow_dispatch:
 
@@ -18,10 +18,9 @@ jobs:
           M="https://msi.nga.mil/api/publications"
           for Q in "4 226 25" "P 496 25" "P 1235 25" "P 2586 25" "4 1210 25" "4 348 26" "4 440 26" "P 1470 26"; do
             set -- $Q
-            for U in "$M/smaps?navArea=$1&msgSqncNumber=$2&createdOn=$3&category=14&output=json"                      "$M/smaps?navArea=$1&msgSqncNumber=$2&createdOn=$3&output=json"                      "$M/broadcast-warn?navArea=$1&msgNumber=$2&msgYear=20$3&status=all&output=json"; do
+            for U in "$M/smaps?navArea=$1&msgSqncNumber=$2&createdOn=$3&category=14&output=json" "$M/smaps?navArea=$1&msgSqncNumber=$2&createdOn=$3&output=json" "$M/broadcast-warn?navArea=$1&msgNumber=$2&msgYear=20$3&status=all&output=json"; do
               curl -s -A "$UA" --max-time 60 -o /tmp/r.out "$U"
-              echo "=== $Q $(wc -c < /tmp/r.out)B $(head -c 160 /tmp/r.out | tr '
-' ' ') <= ${U#$M/}"
+              echo "=== $Q $(wc -c < /tmp/r.out)B $(head -c 160 /tmp/r.out | tr -d '\n') <= ${U#$M/}"
               sleep 1
             done
           done
