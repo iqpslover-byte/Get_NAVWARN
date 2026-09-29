@@ -12,27 +12,33 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Probe
+      - name: Probe smaps (ROCKET LAUNCHING)
         run: |
           UA="Mozilla/5.0 (X11; Linux x86_64) Get_NAVWARN probe"
-          A="https://msi.nga.mil/api/publications"
+          A="https://msi.nga.mil/api/publications/smaps"
           probe () {
-            code=$(curl -s -A "$UA" --max-time 60 -o /tmp/r.out -w "%{http_code}" "$1")
-            size=$(wc -c < /tmp/r.out)
-            echo "=== HTTP $code  ${size}B  $1"
-            head -c 700 /tmp/r.out; echo
-            echo "--- 件数の目安(msgYear/msgNumber の出現数):"
-            grep -o '"msgYear":[0-9]*' /tmp/r.out | sort | uniq -c | head -12
+            code=$(curl -s -A "$UA" --max-time 300 -o /tmp/r.out -w "%{http_code}" "$1")
+            echo "=== HTTP $code  $(wc -c < /tmp/r.out)B  $1"
+            python3 - <<'EOF'
+          import json, collections
+          try:
+              d = json.load(open('/tmp/r.out'))
+          except Exception as e:
+              print('JSON でない:', open('/tmp/r.out', errors='replace').read(300)); raise SystemExit
+          rows = next((v for v in d.values() if isinstance(v, list)), [])
+          print('件数', len(rows))
+          if not rows: raise SystemExit
+          print('項目', sorted(rows[0].keys()))
+          yr = collections.Counter((r.get('createdOn') or '')[-4:] for r in rows)
+          print('作成年', sorted(yr.items()))
+          print('分類', collections.Counter(r.get('category') for r in rows).most_common(5))
+          print('海域', collections.Counter(r.get('navArea') for r in rows).most_common(10))
+          old = sorted(rows, key=lambda r: r.get('sentOnDB') or '')[:3]
+          for r in old:
+              print('古い:', r.get('createdOn'), r.get('navArea'), r.get('msgSqncNumber'), r.get('msgYear'), (r.get('msgText') or r.get('text') or '')[:120].replace('\n', ' '))
+          EOF
           }
-          # 今の分（比較用）
-          probe "$A/broadcast-warn?navArea=P&status=active&output=json"
-          # 取り消し済み・全部
-          probe "$A/broadcast-warn?navArea=P&status=cancelled&output=json"
-          probe "$A/broadcast-warn?navArea=P&status=all&output=json"
-          # 年と番号で1件（2025年・2024年・2022年）
-          probe "$A/broadcast-warn?navArea=P&msgYear=2025&msgNumber=1500&status=all&output=json"
-          probe "$A/broadcast-warn?navArea=P&msgYear=2024&msgNumber=1500&output=json"
-          probe "$A/broadcast-warn?navArea=4&msgYear=2022&msgNumber=1197&output=json"
-          # space-notices の出典欄にある形（smaps）
-          probe "$A/smaps?navArea=C&msgSqncNumber=178&createdOn=26&category=14&output=json"
-          probe "$A/smaps?navArea=P&msgSqncNumber=1500&createdOn=25&category=14&output=json"
+          probe "$A?category=14&output=json"
+          probe "$A?navArea=P&category=14&output=json"
+          probe "$A?navArea=4&category=14&createdOn=24&output=json"
+          probe "$A?category=14&createdOn=22&output=json"
