@@ -1,0 +1,38 @@
+name: Probe NGA history (試験・手動のみ)
+
+# 過去の航行警報を NGA の窓口から引けるかを確かめるだけの試験。
+# 何も書き込まない・コミットしない（結果はログに出すだけ）。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe
+        run: |
+          UA="Mozilla/5.0 (X11; Linux x86_64) Get_NAVWARN probe"
+          A="https://msi.nga.mil/api/publications"
+          probe () {
+            code=$(curl -s -A "$UA" --max-time 60 -o /tmp/r.out -w "%{http_code}" "$1")
+            size=$(wc -c < /tmp/r.out)
+            echo "=== HTTP $code  ${size}B  $1"
+            head -c 700 /tmp/r.out; echo
+            echo "--- 件数の目安(msgYear/msgNumber の出現数):"
+            grep -o '"msgYear":[0-9]*' /tmp/r.out | sort | uniq -c | head -12
+          }
+          # 今の分（比較用）
+          probe "$A/broadcast-warn?navArea=P&status=active&output=json"
+          # 取り消し済み・全部
+          probe "$A/broadcast-warn?navArea=P&status=cancelled&output=json"
+          probe "$A/broadcast-warn?navArea=P&status=all&output=json"
+          # 年と番号で1件（2025年・2024年・2022年）
+          probe "$A/broadcast-warn?navArea=P&msgYear=2025&msgNumber=1500&status=all&output=json"
+          probe "$A/broadcast-warn?navArea=P&msgYear=2024&msgNumber=1500&output=json"
+          probe "$A/broadcast-warn?navArea=4&msgYear=2022&msgNumber=1197&output=json"
+          # space-notices の出典欄にある形（smaps）
+          probe "$A/smaps?navArea=C&msgSqncNumber=178&createdOn=26&category=14&output=json"
+          probe "$A/smaps?navArea=P&msgSqncNumber=1500&createdOn=25&category=14&output=json"
