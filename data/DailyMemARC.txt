@@ -1,5 +1,5 @@
 
-HYDROARC IN FORCE AS OF 301500Z SEP.
+HYDROARC IN FORCE AS OF 011615Z OCT.
 
 To receive Broadcast Warning messages via email, go to
 msi.nga.mil and click on the 'NAVIGATION WARNINGS' button
@@ -13,6 +13,28 @@ services in accordance with the provisions of the
 International Convention for the Safety of Life at
 Sea (SOLAS). This information is provided as a
 supplement to those approved services.
+
+011349Z OCT 26
+HYDROARC 274/26.
+LAPTEV SEA.
+RUSSIA.
+1. ICEBERGS REPORTED AT 011020Z OCT IN: 
+   A. 77-33.60N 114-40.70E.
+   B. 76-29.90N 113-27.50E.
+2. CANCEL THIS MSG 041349Z OCT 26.
+
+011239Z OCT 26
+HYDROARC 273/26.
+LAPTEV SEA.
+1. ICEBERGS REPORTED AT 010200Z OCT IN: 
+   A. 77-09.50N 120-37.00E.
+   B. 77-06.90N 120-02.20E.
+   C. 77-06.80N 120-10.00E.
+   D. 77-04.40N 121-13.10E.
+   E. 77-07.40N 121-52.90E.
+   F. 77-08.40N 121-09.80E.
+   G. 76-58.40N 124-05.60E.
+2. CANCEL THIS MSG 041241Z OCT 26.
 
 291822Z SEP 26
 HYDROARC 272/26.
