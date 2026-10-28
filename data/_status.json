@@ -1,40 +1,40 @@
 {
-  "checked_at": "2026-10-28T04:41:13Z",
+  "checked_at": "2026-10-28T12:20:35Z",
   "note": "last_ok=最後に取得できた時刻。ファイルのコミットが無くても取得は成功している場合がある（内容が変わらなければ差分が出ないため）。",
   "sources": {
     "DailyMemARC.txt": {
       "ok": true,
-      "last_ok": "2026-10-28T04:41:13Z",
+      "last_ok": "2026-10-28T12:20:35Z",
       "via": "direct",
       "bytes": 9577
     },
     "DailyMemIV.txt": {
       "ok": true,
-      "last_ok": "2026-10-28T04:41:13Z",
+      "last_ok": "2026-10-28T12:20:35Z",
       "via": "direct",
       "bytes": 29170
     },
     "DailyMemLAN.txt": {
       "ok": true,
-      "last_ok": "2026-10-28T04:41:13Z",
+      "last_ok": "2026-10-28T12:20:35Z",
       "via": "direct",
       "bytes": 31490
     },
     "DailyMemPAC.txt": {
       "ok": true,
-      "last_ok": "2026-10-28T04:41:13Z",
+      "last_ok": "2026-10-28T12:20:35Z",
       "via": "direct",
       "bytes": 37630
     },
     "DailyMemXII.txt": {
       "ok": true,
-      "last_ok": "2026-10-28T04:41:13Z",
+      "last_ok": "2026-10-28T12:20:35Z",
       "via": "direct",
       "bytes": 10515
     },
     "MaritimeNZ.html": {
       "ok": true,
-      "last_ok": "2026-10-28T04:41:13Z",
+      "last_ok": "2026-10-28T12:20:35Z",
       "via": "https://r.jina.ai/https://www.maritimenz.govt.nz/navigational-warnings/",
       "bytes": 5407,
       "last_fail": "2026-10-12T04:59:28Z"
