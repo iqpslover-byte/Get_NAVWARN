@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-15T13:39:47Z",
+  "checked_at": "2026-11-15T22:36:30Z",
   "note": "last_ok=最後に取得できた時刻。ファイルのコミットが無くても取得は成功している場合がある（内容が変わらなければ差分が出ないため）。",
   "sources": {
     "DailyMemARC.txt": {
@@ -7,48 +7,47 @@
       "last_ok": "2026-11-03T13:49:17Z",
       "via": "direct",
       "bytes": 9345,
-      "last_fail": "2026-11-15T13:39:47Z",
-      "fail_streak": 33
+      "last_fail": "2026-11-15T22:36:30Z",
+      "fail_streak": 34
     },
     "DailyMemIV.txt": {
       "ok": false,
       "last_ok": "2026-11-03T13:49:17Z",
       "via": "direct",
       "bytes": 29616,
-      "last_fail": "2026-11-15T13:39:47Z",
-      "fail_streak": 33
+      "last_fail": "2026-11-15T22:36:30Z",
+      "fail_streak": 34
     },
     "DailyMemLAN.txt": {
       "ok": false,
       "last_ok": "2026-11-03T13:49:17Z",
       "via": "direct",
       "bytes": 31970,
-      "last_fail": "2026-11-15T13:39:47Z",
-      "fail_streak": 33
+      "last_fail": "2026-11-15T22:36:30Z",
+      "fail_streak": 34
     },
     "DailyMemPAC.txt": {
       "ok": false,
       "last_ok": "2026-11-03T13:49:17Z",
       "via": "direct",
       "bytes": 41985,
-      "last_fail": "2026-11-15T13:39:47Z",
-      "fail_streak": 33
+      "last_fail": "2026-11-15T22:36:30Z",
+      "fail_streak": 34
     },
     "DailyMemXII.txt": {
       "ok": false,
       "last_ok": "2026-11-03T13:49:17Z",
       "via": "direct",
       "bytes": 12165,
-      "last_fail": "2026-11-15T13:39:47Z",
-      "fail_streak": 33
+      "last_fail": "2026-11-15T22:36:30Z",
+      "fail_streak": 34
     },
     "MaritimeNZ.html": {
-      "ok": false,
-      "last_ok": "2026-11-15T05:27:56Z",
+      "ok": true,
+      "last_ok": "2026-11-15T22:36:30Z",
       "via": "https://r.jina.ai/https://www.maritimenz.govt.nz/navigational-warnings/",
-      "bytes": 1651,
-      "last_fail": "2026-11-15T13:39:47Z",
-      "fail_streak": 1
+      "bytes": 2138,
+      "last_fail": "2026-11-15T13:39:47Z"
     }
   }
 }
