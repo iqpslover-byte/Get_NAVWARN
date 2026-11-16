@@ -18,12 +18,21 @@ jobs:
           mkdir -p data
           : > /tmp/fetch_status.txt
           BASE="https://msi.nga.mil/api/publications/download?type=view&key=16694640/SFH00000"
+          # MSI ポータルの保守中（2026-11-03〜）は、正式の URL が 503 でお詫びのページを返す。
+          # お詫びのページに NGA 自身が置く DailyMem（同じ形式・手で時々更新）があるので、正式が駄目な時はそれを取る。
+          # お詫びのページ（HTML）を警報ファイルと取り違えないよう、「IN FORCE AS OF」がある時だけ保存する。
+          ALT="https://msi.nga.mil/apology_objects"
+          got() { curl -fsSL --max-time 60 "$1" -o "$2" && grep -q "IN FORCE AS OF" "$2"; }
           for F in DailyMemPAC.txt DailyMemXII.txt DailyMemLAN.txt DailyMemIV.txt DailyMemARC.txt; do
-            if curl -fsSL "$BASE/$F" -o "/tmp/$F"; then
+            if got "$BASE/$F" "/tmp/$F"; then
               mv "/tmp/$F" "data/$F"
               echo "OK $F direct" >> /tmp/fetch_status.txt
+            elif got "$ALT/$F" "/tmp/$F"; then
+              mv "/tmp/$F" "data/$F"
+              echo "OK $F apology_objects" >> /tmp/fetch_status.txt
+              echo "$F: 正式の URL は駄目・保守中の置き場所から取得"
             else
-              echo "NG $F direct" >> /tmp/fetch_status.txt
+              echo "NG $F direct+apology_objects" >> /tmp/fetch_status.txt
               echo "$F: 取得できず（前回のファイルを残す）"
             fi
           done
